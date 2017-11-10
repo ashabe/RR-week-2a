@@ -1,0 +1,112 @@
+---
+title: "week 2 test"
+author: "ashy"
+date: "10 November 2017"
+output: html_document
+---
+=============================================
+
+## Week 2 test
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+Loading the data set
+We have many NA's in out "steps" column
+```{r}
+Week2 <- read.csv("C:\\Ashy\\Ashy\\cousera\\Reproducible research\\week 2\\activity.csv")
+
+summary(Week2)
+
+table(is.na(Week2$steps))
+
+str(Week2)
+```
+
+What is mean total number of steps taken per day?
+
+For this part of the assignment, you can ignore the missing values in the dataset.
+
+Calculate the total number of steps taken per day
+#Week2$steps[is.na(Week2$steps)]  <- 0 #replacing the NA's with Zero
+
+```{r total number of steps per day}
+
+steps <- aggregate(Week2$steps, by = list(Date = Week2$date), FUN = sum)
+
+names(steps)[names(steps) == "x"] <- "Total"
+temp <- as.Date(steps$Date, "%Y-%m-%d")
+steps$Date <- format(temp, format = "%m-%d")
+head(steps)
+
+```
+
+Make a histogram of the total number of steps taken each day.
+
+```{r}
+with(steps,hist(Total))
+
+```
+
+
+Calculate and report the mean and median of the total number of steps taken per day
+```{r mean}
+mean(steps$Total,na.rm = TRUE)
+
+
+median(steps$Total,na.rm = TRUE)
+
+```
+
+What is the average daily activity pattern?
+Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+```{r}
+
+library(ggplot2)
+
+Five_Min <- aggregate(steps ~ interval, data = Week2, FUN =mean)
+
+TimeSeries <- ggplot(data = Five_Min, aes(x = interval, y = steps)) + 
+    geom_line() +
+    xlab("Time Intervals") + 
+    ylab("Total Number of Steps") +
+    ggtitle("Avg. steps")
+
+print(TimeSeries)
+
+
+```
+Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+
+```{r}
+Five_Min[which(Five_Min$steps == max(Five_Min$steps)),]
+
+```
+
+
+Imputing missing values
+Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+```{r}
+sapply(X = Week2, FUN = function(x) sum(is.na(x)))
+
+```
+
+Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc
+
+Create a new dataset that is equal to the original dataset but with the missing data filled in
+
+```{r}
+
+table(is.na(Week2$steps))
+table(is.na(Week2$date))
+table(is.na(Week2$interval))
+
+Week2$steps[is.na(Week2$steps)] <- mean(Week2$steps,na.rm = TRUE)
+table(is.na(Week2$steps))
+table(is.na(Week2))
+
+```
+
+
